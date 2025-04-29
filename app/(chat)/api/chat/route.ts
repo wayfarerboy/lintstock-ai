@@ -105,6 +105,7 @@ export async function POST(request: Request) {
           system: systemPrompt({ selectedChatModel }),
           messages,
           maxSteps: 5,
+          maxTokens: 2048,
           experimental_activeTools:
             selectedChatModel === 'chat-model-reasoning'
               ? []
@@ -178,6 +179,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (_) {
+    console.error('An error occurred while processing your request!', _);
     return new Response('An error occurred while processing your request!', {
       status: 500,
     });
@@ -209,6 +211,7 @@ export async function DELETE(request: Request) {
 
     return Response.json(deletedChat, { status: 200 });
   } catch (error) {
+    console.error('An error occurred while processing your request!', error);
     return new Response('An error occurred while processing your request!', {
       status: 500,
     });
