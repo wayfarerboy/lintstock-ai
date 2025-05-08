@@ -3,9 +3,9 @@ import postgres from 'postgres';
 import {
   chat,
   message,
-  messageDeprecated,
+  //  messageDeprecated,
   vote,
-  voteDeprecated,
+  // voteDeprecated,
 } from '../schema';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { inArray } from 'drizzle-orm';
@@ -49,6 +49,7 @@ async function createNewTable() {
     const chatBatch = chats.slice(i, i + BATCH_SIZE);
     const chatIds = chatBatch.map((chat) => chat.id);
 
+    /*
     // Fetch all messages and votes for the current batch of chats in bulk
     const allMessages = await db
       .select()
@@ -85,7 +86,6 @@ async function createNewTable() {
           messageSection.length = 0;
         }
 
-        // @ts-expect-error message.content has different type
         messageSection.push(message);
       }
 
@@ -139,7 +139,7 @@ async function createNewTable() {
             newMessagesToInsert.push(msg);
 
             if (msg.role === 'assistant') {
-              const voteByMessage = votes.find((v) => v.messageId === msg.id);
+              const voteByMessage = votes.find((v: any) => v.messageId === msg.id);
               if (voteByMessage) {
                 newVotesToInsert.push({
                   messageId: msg.id,
@@ -180,6 +180,7 @@ async function createNewTable() {
         await db.insert(vote).values(voteBatch);
       }
     }
+      */
   }
 
   console.info(`Migration completed: ${processedCount} chats processed`);

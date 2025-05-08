@@ -48,12 +48,12 @@ export const {
   auth,
   signIn,
   signOut,
-} = NextAuth(() => {
+} = NextAuth(async () => {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   return {
     ...authConfig,
     providers: [EmailProvider(emailProviderConfig)],
-    adapter: PostgresAdapter(pool),
+    adapter: PostgresAdapter(pool) as any,
     session: {
       maxAge: 24 * 60 * 60,
     },

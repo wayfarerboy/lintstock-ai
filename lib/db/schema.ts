@@ -75,7 +75,7 @@ export const verification_token = pgTable('verification_token', {
   expires: timestamp('expires', { withTimezone: true }).notNull(),
 });
 
-export type VerificationToken = InferSelectModel<typeof verificationToken>;
+export type VerificationToken = InferSelectModel<typeof verification_token>;
 
 export const chat = pgTable('chats', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),

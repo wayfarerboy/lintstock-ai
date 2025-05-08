@@ -48,11 +48,9 @@ export async function getUser(email: string): Promise<Array<User>> {
   }
 }
 
-export async function createUser(email: string, password: string) {
-  const hashedPassword = generateHashedPassword(password);
-
+export async function createUser(email: string) {
   try {
-    return await db.insert(user).values({ email, password: hashedPassword });
+    return await db.insert(user).values({ email });
   } catch (error) {
     console.error('Failed to create user in database');
     throw error;
