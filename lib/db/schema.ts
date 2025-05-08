@@ -3,23 +3,81 @@ import {
   pgTable,
   varchar,
   timestamp,
+  bigint,
   json,
   uuid,
   text,
   primaryKey,
   foreignKey,
   boolean,
+  serial,
 } from 'drizzle-orm/pg-core';
 
-export const user = pgTable('User', {
+export const user = pgTable('users', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
-  email: varchar('email', { length: 64 }).notNull(),
-  password: varchar('password', { length: 64 }),
+  name: varchar('name', { length: 255 }),
+  email: varchar('email', { length: 255 }).notNull(),
+  emailVerified: timestamp('emailVerified', { withTimezone: true }),
+  image: text('image'),
+  createdAt: timestamp('createdAt', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp('updatedAt', { withTimezone: true }),
 });
 
 export type User = InferSelectModel<typeof user>;
 
-export const chat = pgTable('Chat', {
+export const account = pgTable('accounts', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  userId: uuid('userId')
+    .notNull()
+    .references(() => user.id),
+  type: varchar('type', { length: 255 }).notNull(),
+  provider: varchar('provider', { length: 255 }).notNull(),
+  providerAccountId: varchar('providerAccountId', { length: 255 }).notNull(),
+  refreshToken: text('refresh_token'),
+  accessToken: text('access_token'),
+  expiresAt: bigint('expires_at', { mode: 'number' }),
+  idToken: text('id_token'),
+  scope: text('scope'),
+  sessionState: text('session_state'),
+  tokenType: text('token_type'),
+});
+
+export type Account = InferSelectModel<typeof account>;
+
+export const session = pgTable('sessions', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  sessionToken: varchar('sessionToken', { length: 255 }).notNull(),
+  userId: uuid('userId')
+    .notNull()
+    .references(() => user.id),
+  expires: timestamp('expires', { withTimezone: true }).notNull(),
+});
+
+export type Session = InferSelectModel<typeof session>;
+
+/*
+ * CREATE TABLE verification_token
+(
+  identifier TEXT NOT NULL,
+  expires TIMESTAMPTZ NOT NULL,
+  token TEXT NOT NULL,
+
+  PRIMARY KEY (identifier, token)
+);
+*/
+
+export const verification_token = pgTable('verification_token', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  identifier: text('identifier').notNull(),
+  token: text('token').notNull(),
+  expires: timestamp('expires', { withTimezone: true }).notNull(),
+});
+
+export type VerificationToken = InferSelectModel<typeof verificationToken>;
+
+export const chat = pgTable('chats', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
   createdAt: timestamp('createdAt').notNull(),
   title: text('title').notNull(),
@@ -33,21 +91,7 @@ export const chat = pgTable('Chat', {
 
 export type Chat = InferSelectModel<typeof chat>;
 
-// DEPRECATED: The following schema is deprecated and will be removed in the future.
-// Read the migration guide at https://github.com/vercel/ai-chatbot/blob/main/docs/04-migrate-to-parts.md
-export const messageDeprecated = pgTable('Message', {
-  id: uuid('id').primaryKey().notNull().defaultRandom(),
-  chatId: uuid('chatId')
-    .notNull()
-    .references(() => chat.id),
-  role: varchar('role').notNull(),
-  content: json('content').notNull(),
-  createdAt: timestamp('createdAt').notNull(),
-});
-
-export type MessageDeprecated = InferSelectModel<typeof messageDeprecated>;
-
-export const message = pgTable('Message_v2', {
+export const message = pgTable('messages', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
   chatId: uuid('chatId')
     .notNull()
@@ -62,28 +106,8 @@ export type DBMessage = InferSelectModel<typeof message>;
 
 // DEPRECATED: The following schema is deprecated and will be removed in the future.
 // Read the migration guide at https://github.com/vercel/ai-chatbot/blob/main/docs/04-migrate-to-parts.md
-export const voteDeprecated = pgTable(
-  'Vote',
-  {
-    chatId: uuid('chatId')
-      .notNull()
-      .references(() => chat.id),
-    messageId: uuid('messageId')
-      .notNull()
-      .references(() => messageDeprecated.id),
-    isUpvoted: boolean('isUpvoted').notNull(),
-  },
-  (table) => {
-    return {
-      pk: primaryKey({ columns: [table.chatId, table.messageId] }),
-    };
-  },
-);
-
-export type VoteDeprecated = InferSelectModel<typeof voteDeprecated>;
-
 export const vote = pgTable(
-  'Vote_v2',
+  'votes',
   {
     chatId: uuid('chatId')
       .notNull()
@@ -103,7 +127,7 @@ export const vote = pgTable(
 export type Vote = InferSelectModel<typeof vote>;
 
 export const document = pgTable(
-  'Document',
+  'documents',
   {
     id: uuid('id').notNull().defaultRandom(),
     createdAt: timestamp('createdAt').notNull(),
@@ -126,7 +150,7 @@ export const document = pgTable(
 export type Document = InferSelectModel<typeof document>;
 
 export const suggestion = pgTable(
-  'Suggestion',
+  'suggestions',
   {
     id: uuid('id').notNull().defaultRandom(),
     documentId: uuid('documentId').notNull(),

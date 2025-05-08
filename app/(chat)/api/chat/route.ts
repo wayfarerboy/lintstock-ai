@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       return new Response('Unauthorized', { status: 401 });
     }
 
-    const userType: UserType = session.user.type;
+    const userType: UserType = session.user.type || 'regular';
 
     const messageCount = await getMessageCountByUserId({
       id: session.user.id,

@@ -2,7 +2,7 @@
 
 import { useFormStatus } from 'react-dom';
 
-import { LoaderIcon } from '@/components/icons';
+import { LoaderIcon, CheckCircleFillIcon } from '@/components/icons';
 
 import { Button } from './ui/button';
 
@@ -24,14 +24,20 @@ export function SubmitButton({
     >
       {children}
 
-      {(pending || isSuccessful) && (
+      {pending && (
         <span className="animate-spin absolute right-4">
           <LoaderIcon />
         </span>
       )}
 
+      {isSuccessful && (
+        <span className="absolute right-4">
+          <CheckCircleFillIcon />
+        </span>
+      )}
+
       <output aria-live="polite" className="sr-only">
-        {pending || isSuccessful ? 'Loading' : 'Submit form'}
+        {pending ? 'Loading' : isSuccessful ? 'Submitted' : 'Submit form'}
       </output>
     </Button>
   );

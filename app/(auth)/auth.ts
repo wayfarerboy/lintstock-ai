@@ -1,12 +1,13 @@
 import { compare } from 'bcrypt-ts';
 import NextAuth, { type DefaultSession } from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
-import { createGuestUser, getUser } from '@/lib/db/queries';
+import EmailProvider from 'next-auth/providers/email';
 import { authConfig } from './auth.config';
 import { DUMMY_PASSWORD } from '@/lib/constants';
 import type { DefaultJWT } from 'next-auth/jwt';
+import PostgresAdapter from '@auth/pg-adapter';
+import { Pool } from '@neondatabase/serverless';
 
-export type UserType = 'guest' | 'regular';
+export type UserType = 'regular';
 
 declare module 'next-auth' {
   interface Session extends DefaultSession {
@@ -30,63 +31,45 @@ declare module 'next-auth/jwt' {
   }
 }
 
+const emailProviderConfig = {
+  server: {
+    host: process.env.MAILGUN_HOST,
+    port: process.env.MAILGUN_PORT,
+    auth: {
+      user: process.env.MAILGUN_USER,
+      pass: process.env.MAILGUN_PASSWORD,
+    },
+  },
+  from: process.env.MAILGUN_FROM,
+};
+
 export const {
   handlers: { GET, POST },
   auth,
   signIn,
   signOut,
-} = NextAuth({
-  ...authConfig,
-  providers: [
-    Credentials({
-      credentials: {},
-      async authorize({ email, password }: any) {
-        const users = await getUser(email);
-
-        if (users.length === 0) {
-          await compare(password, DUMMY_PASSWORD);
-          return null;
-        }
-
-        const [user] = users;
-
-        if (!user.password) {
-          await compare(password, DUMMY_PASSWORD);
-          return null;
-        }
-
-        const passwordsMatch = await compare(password, user.password);
-
-        if (!passwordsMatch) return null;
-
-        return { ...user, type: 'regular' };
-      },
-    }),
-    Credentials({
-      id: 'guest',
-      credentials: {},
-      async authorize() {
-        const [guestUser] = await createGuestUser();
-        return { ...guestUser, type: 'guest' };
-      },
-    }),
-  ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id as string;
-        token.type = user.type;
-      }
-
-      return token;
+} = NextAuth(() => {
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  return {
+    ...authConfig,
+    providers: [EmailProvider(emailProviderConfig)],
+    adapter: PostgresAdapter(pool),
+    session: {
+      maxAge: 24 * 60 * 60,
     },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id;
-        session.user.type = token.type;
-      }
-
-      return session;
+    callbacks: {
+      async redirect({ url, baseUrl }) {
+        // Allows relative callback URLs
+        if (url.startsWith('/')) {
+          if (url === '/login') return baseUrl;
+          return `${baseUrl}${url}`;
+          // Allows callback URLs on the same origin
+        } else if (new URL(url).origin === baseUrl) {
+          if (url.endsWith('/login')) return baseUrl;
+          return url;
+        }
+        return baseUrl;
+      },
     },
-  },
+  };
 });
