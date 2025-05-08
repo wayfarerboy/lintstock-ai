@@ -1,0 +1,2 @@
+pnpm version patch --no-git-tag-version
+pnpm run commit-version-change

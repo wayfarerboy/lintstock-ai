@@ -58,6 +58,21 @@ export const {
       maxAge: 24 * 60 * 60,
     },
     callbacks: {
+      async signIn({ user, email }) {
+        if (email?.verificationRequest) {
+          const e = user?.email;
+          if (e) {
+            if (e.endsWith('@lintstock.com')) return true;
+            if (
+              (process.env.AUTHORISED_USERS as string)?.split(',').includes(e)
+            ) {
+              return true;
+            }
+          }
+          return false;
+        }
+        return true;
+      },
       async redirect({ url, baseUrl }) {
         // Allows relative callback URLs
         if (url.startsWith('/')) {
