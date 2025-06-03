@@ -1,6 +1,6 @@
 {
   "name": "lintstock-ai",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
@@ -10,6 +10,7 @@
     "lint": "next lint && biome lint --write --unsafe",
     "lint:fix": "next lint --fix && biome lint --write --unsafe",
     "format": "biome format --write",
+    "parse-data": "node scripts/parse-data.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "npx tsx lib/db/migrate.ts",
     "db:studio": "drizzle-kit studio",
@@ -59,7 +60,6 @@
     "framer-motion": "^11.18.2",
     "geist": "^1.4.2",
     "lucide-react": "^0.446.0",
-    "nanoid": "^5.1.5",
     "next": "15.3.0-canary.31",
     "next-auth": "5.0.0-beta.25",
     "next-themes": "^0.3.0",
@@ -100,6 +100,7 @@
     "@types/pdf-parse": "^1.1.5",
     "@types/react": "^18.3.21",
     "@types/react-dom": "^18.3.7",
+    "csv-stringify": "^6.5.2",
     "drizzle-kit": "^0.25.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.5",
@@ -107,11 +108,17 @@
     "eslint-import-resolver-typescript": "^3.10.1",
     "eslint-plugin-tailwindcss": "^3.18.0",
     "husky": "^9.1.7",
+    "nanoid": "^5.1.5",
     "postcss": "^8.5.3",
     "prettier": "^3.5.3",
+    "seedrandom": "^3.0.5",
+    "sequelize": "^6.37.7",
+    "snakecase-keys": "^8.0.1",
+    "sqlite3": "^5.1.7",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.4",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "xlsx": "^0.18.5"
   },
-  "packageManager": "pnpm@10.10.0"
+  "packageManager": "pnpm@10.11.1"
 }
