@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes, Op } from 'sequelize';
+import { Sequelize, DataTypes } from 'sequelize';
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
@@ -133,3 +133,5 @@ export const responseExists = async (id) => {
   const found = await Response.findByPk(id);
   return !!found;
 };
+
+export { Response };

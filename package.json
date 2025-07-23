@@ -1,6 +1,6 @@
 {
   "name": "lintstock-ai",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
@@ -11,6 +11,7 @@
     "lint:fix": "next lint --fix && biome lint --write --unsafe",
     "format": "biome format --write",
     "parse-data": "node scripts/parse-data.mjs",
+    "export-question1-csv": "node scripts/export-question1-csv.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "npx tsx lib/db/migrate.ts",
     "db:studio": "drizzle-kit studio",
@@ -22,6 +23,8 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@ai-sdk/google": "^1.2.19",
+    "@ai-sdk/google-vertex": "^2.2.24",
     "@ai-sdk/openai": "^1.3.21",
     "@ai-sdk/react": "^1.2.11",
     "@ai-sdk/xai": "^1.2.15",
